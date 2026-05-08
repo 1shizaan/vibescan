@@ -1,5 +1,20 @@
 import { FileContent, Issue } from '../types.js'
 
+function isInsideStringLiteral(line: string, matchIndex: number): boolean {
+  let inString = false
+  let stringChar = ''
+  for (let i = 0; i < matchIndex && i < line.length; i++) {
+    const ch = line[i]
+    if (!inString && (ch === '"' || ch === "'" || ch === '`')) {
+      inString = true
+      stringChar = ch
+    } else if (inString && ch === stringChar && line[i - 1] !== '\\') {
+      inString = false
+    }
+  }
+  return inString
+}
+
 interface SecurityPattern {
   name: string
   regex: RegExp
@@ -98,8 +113,11 @@ export function detectSecurity(file: FileContent): Issue[] {
     while ((match = regex.exec(file.content)) !== null) {
       const lineNumber = file.content.substring(0, match.index).split('\n').length
       const lineContent = file.lines[lineNumber - 1]?.trim() ?? ''
+      const rawLine = file.lines[lineNumber - 1] ?? ''
+      const colInLine = match.index - file.content.lastIndexOf('\n', match.index - 1) - 1
 
       if (lineContent.startsWith('//') || lineContent.startsWith('*')) continue
+      if (isInsideStringLiteral(rawLine, colInLine)) continue
 
       issues.push({
         type: 'SECURITY',

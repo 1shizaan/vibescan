@@ -1,9 +1,10 @@
 {
-  "name": "vibescan",
+  "name": "vibescan-cli",
   "version": "0.1.0",
   "description": "Audit AI-generated code for security issues, duplicates, and vibe coding patterns",
   "bin": {
-    "vibescan": "./dist/cli.js"
+    "vibescan": "./dist/cli.js",
+    "vibescan-cli": "./dist/cli.js"
   },
   "main": "./dist/scanner.js",
   "scripts": {
